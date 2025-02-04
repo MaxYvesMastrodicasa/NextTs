@@ -6,7 +6,7 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 async function seedDatabase() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   
-  // Création de la table Users
+  // Création de la table User
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -18,9 +18,9 @@ async function seedDatabase() {
     );
   `;
 
-  // Création de la table Courses
+  // Création de la table Course
   await sql`
-    CREATE TABLE IF NOT EXISTS courses (
+    CREATE TABLE IF NOT EXISTS course (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       title VARCHAR(255) NOT NULL,
       description TEXT NOT NULL,
