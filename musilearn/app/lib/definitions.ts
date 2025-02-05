@@ -3,7 +3,7 @@ export type User = {
   name: string;
   email: string;
   password: string;
-  role: 'student' | 'professor' | 'admin';
+  role: "student" | "professor" | "admin";
   createdAt: Date;
 };
 
@@ -12,7 +12,7 @@ export type Course = {
   title: string;
   description: string;
   instrument: string;
-  teacherId: string;
+  teacherId: string; 
   level: string;
   schedule: string;
   capacity: number;
@@ -21,9 +21,9 @@ export type Course = {
 export type Enrollment = {
   id: string;
   studentId: string;
-  courseId: string;
+  courseId: string; 
   enrollmentDate: Date;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: "pending" | "confirmed" | "cancelled";
 };
 
 export type Progress = {
