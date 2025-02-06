@@ -1,11 +1,12 @@
 'use server';
+ 
+import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import postgres from 'postgres';
-import { signIn } from 'next-auth/react';
  
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
@@ -116,16 +117,16 @@ export async function updateInvoice(
     formData: FormData,
   ) {
     try {
-      const res = await signIn('credentials', { redirect: false, ...Object.fromEntries(formData) });
-  
-      if (!res?.ok) {
-        return 'Invalid credentials.';
-      }
-      
-      return null;
+      await signIn('credentials', formData);
     } catch (error) {
-      console.error('Authentication Error:', error);
-      return 'Something went wrong.';
+      if (error instanceof AuthError) {
+        switch (error.type) {
+          case 'CredentialsSignin':
+            return 'Invalid credentials.';
+          default:
+            return 'Something went wrong.';
+        }
+      }
+      throw error;
     }
   }
-  
