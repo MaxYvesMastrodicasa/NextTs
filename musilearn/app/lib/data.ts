@@ -1,5 +1,6 @@
 'use server';
 import postgres from 'postgres';
+import bcrypt from "bcrypt";
 import {
   Users
 } from './definitions';
@@ -57,20 +58,23 @@ export async function fetchUsersPages(query: string) {
   }
 
   export async function createUser(name: string, email: string, role: string) {
-    console.log("Creating user:", { name, email, role });
-
+    //console.log("T'es la ou t'es pas la ? :", { name, email, role });
+  
+    const hashedPassword = await bcrypt.hash("defaultpassword123", 10); // Mot de passe temporaire
+  
     try {
       await sql`
-        INSERT INTO users (name, email, role, createdat)
-        VALUES (${name}, ${email}, ${role}, NOW())
+        INSERT INTO users (name, email, role, password, createdat)
+        VALUES (${name}, ${email}, ${role}, ${hashedPassword}, NOW())
       `;
   
       return { success: true, message: "User created successfully!" };
     } catch (error) {
-      console.error("Database Error:", error);
+      console.error("DB Error : ", error);
       return { success: false, message: "Failed to create user." };
     }
   }
+  
 
   export async function updateUser(id: string, name: string, email: string, role: string) {
     try {
@@ -81,20 +85,17 @@ export async function fetchUsersPages(query: string) {
       `;
       return { success: true, message: "User updated successfully!" };
     } catch (error) {
-      console.error("Database Error:", error);
+      console.error("DB Error : ", error);
       return { success: false, message: "Failed to update user." };
     }
   }
   
   export async function deleteUser(id: string) {
     try {
-      await sql`
-        DELETE FROM users WHERE id = ${id}
-      `;
-  
+      await sql`DELETE FROM users WHERE id = ${id}`;
       return { message: "User deleted successfully." };
     } catch (error) {
-      console.error("Database Error:", error);
+      console.error("DB Error : ", error);
       throw new Error("Failed to delete user.");
     }
   }

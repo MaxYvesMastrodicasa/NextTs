@@ -1,8 +1,8 @@
 "use client";
-
+import toast, { Toaster } from "react-hot-toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateUser, createUser } from "@/app/lib/data";
+import { updateUser, createUser, deleteUser } from "@/app/lib/data";
 import {
   PencilIcon,
   CheckIcon,
@@ -65,8 +65,9 @@ export default function UsersTable({
   };
 
   const handleDelete = async (userId: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
-      console.log(`Suppression de l'utilisateur ${userId}`);
+    if (confirm("Are you sure to delete this user ?")) {
+      deleteUser(userId);
+      toast("User deleted sucessfuly", { icon: "🗑️" });
       router.refresh();
     }
   };
@@ -79,14 +80,10 @@ export default function UsersTable({
   };
 
   const handleAddUser = async () => {
-    console.log("handleAddUser() appelé !");
-
     if (!newUser.name || !newUser.email) {
-      alert("Veuillez remplir tous les champs !");
+      toast.error("Please complete all fields !");
       return;
     }
-
-    console.log("Données envoyées à createUser:", newUser);
 
     const response = await createUser(
       newUser.name,
@@ -94,15 +91,13 @@ export default function UsersTable({
       newUser.role
     );
 
-    console.log("Réponse de createUser:", response);
-
     if (response.success) {
-      alert("Utilisateur ajouté avec succès !");
+      toast.success("User added sucessfully !");
       setShowNewUserRow(false);
       setNewUser({ name: "", email: "", role: "student" });
       router.refresh();
     } else {
-      alert("Erreur lors de l'ajout !");
+      toast.error("Error since adding user !");
     }
   };
 
@@ -200,6 +195,7 @@ export default function UsersTable({
             </tr>
           ))}
         </tbody>
+        <Toaster position="top-right" reverseOrder={false} />
       </table>
     </div>
   );
