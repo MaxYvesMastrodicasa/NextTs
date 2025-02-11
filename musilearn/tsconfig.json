@@ -30,6 +30,6 @@
     ".next/types/**/*.ts",
     "app/lib/placeholder-data.ts",
     "scripts/seed.js"
-  ],
+, "auth.config", "auth.ts", "middleware.ts.old"  ],
   "exclude": ["node_modules"]
 }
