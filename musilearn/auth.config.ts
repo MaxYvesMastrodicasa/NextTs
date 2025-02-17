@@ -1,36 +1,47 @@
 import type { NextAuthConfig } from 'next-auth';
- 
-export const authConfig = {
+
+export const authConfig: NextAuthConfig = {
+  session: {
+    strategy: 'jwt',
+  },
   pages: {
     signIn: '/login',
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const userRole = auth?.user.role;
-      const allowedPath = '/'+userRole;
-      console.log(allowedPath);
+      const userRole = auth?.user?.role;
+      const allowedPath = '/' + (userRole as string);
       const isOnDashboard = nextUrl.pathname.startsWith(allowedPath);
       if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
+        return isLoggedIn;
       } else if (isLoggedIn) {
         return Response.redirect(new URL(allowedPath, nextUrl));
       }
       return true;
     },
-    session: async ({session, user}) => {
-      if (session.user) {
-        session.user.role = "Professor";
+
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
       }
-      console.log("Session: ", session)
-      console.log("User: ", user)
-      return session;
+      return token;
     },
 
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = (token.role as string);
+      }
+      console.log("Session: ", session);
+      console.log("Token: ", token);
+      return session;
+    },
   },
-  providers: [], // Add providers with an empty array for now
+  providers: [],
 } satisfies NextAuthConfig;
+
+
+
 
 // export const authConfig = {
 //   pages: {

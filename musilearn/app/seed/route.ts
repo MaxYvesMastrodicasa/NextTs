@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import postgres from 'postgres';
 import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 
@@ -104,14 +104,24 @@ async function seedRevenue() {
 export async function GET() {
   try {
     const result = await sql.begin((sql) => [
-      seedUsers(),
-      seedCustomers(),
-      seedInvoices(),
-      seedRevenue(),
+      // seedUsers(),
+      // seedCustomers(),
+      // seedInvoices(),
+      // seedRevenue(),
+      updatefdp(),
     ]);
 
     return Response.json({ message: 'Database seeded successfully' });
   } catch (error) {
+    console.log(error);
     return Response.json({ error }, { status: 500 });
   }
+}
+
+async function updatefdp() {
+  const pswd = "professor";
+  const pswdhash = await bcrypt.hash(pswd, 10);
+  await sql`
+    UPDATE users SET password = ${pswdhash} where id = '410544b2-4001-4271-9855-fec4b6a6442b'
+  `;
 }

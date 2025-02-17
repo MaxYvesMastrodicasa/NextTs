@@ -2,12 +2,13 @@ import Link from "next/link";
 import NavLinks from "@/app/ui/dashboard/nav-links";
 import Logo from "@/app/ui/logo";
 import { PowerIcon } from "@heroicons/react/24/outline";
-// import { signOut } from "@/auth";
+import { signOut } from "@/auth";
+import { signOutAction } from "@/app/lib/actions";
 
 export default function SideNav({
   role,
 }: {
-  role: "teacher" | "student" | "admin";
+  role: string;
 }) {
   return (
     <div className="flex h-full flex-col px-3 py-4 md:px-2">
@@ -23,10 +24,7 @@ export default function SideNav({
         <NavLinks />
         <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
         <form
-        // action={async () => {
-        //   "use server";
-        //   await signOut({ redirectTo: "/" });
-        // }}
+          action={signOutAction}
         >
           <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3">
             <PowerIcon className="w-6" />

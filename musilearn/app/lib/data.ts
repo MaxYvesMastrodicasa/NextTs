@@ -1,6 +1,6 @@
 'use server';
 import postgres from 'postgres';
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import {
   Users
 } from './definitions';
