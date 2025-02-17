@@ -2,13 +2,17 @@ import "@/app/ui/global.css";
 import { inter } from "./ui/fonts";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
+export const metadata = {
   title: {
-    template: "%s | Acme Dashboard",
-    default: "Acme Dashboard",
+    template: "%s | MusiLearn",
+    default: "MusiLearn - École de Musique",
   },
-  description: "The official Next.js Learn Dashboard built with App Router.",
-  metadataBase: new URL("https://next-learn-dashboard.vercel.sh"),
+  description: "Plateforme de gestion de cours de musique",
+  keywords: ["musique", "cours", "apprentissage"],
+  authors: [{ name: "MusiLearn" }],
+  openGraph: {
+    images: "/images/og-image.jpg",
+  },
 };
 
 export default function RootLayout({

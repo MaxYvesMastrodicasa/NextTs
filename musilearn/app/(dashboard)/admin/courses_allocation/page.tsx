@@ -2,7 +2,7 @@ import { lusitana } from "@/app/ui/fonts";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin Course allocation",
+  title: "Course allocation",
 };
 
 export default async function Page() {
