@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import Pagination from "@/app/ui/users/pagination";
-import Search from "@/app/ui/search";
+import Pagination from "@/app/ui/users/Pagination";
+import Search from "@/app/ui/users/Search";
 import UsersTable from "@/app/ui/users/table";
 import { fetchUsersPages, fetchFilteredUser } from "@/app/lib/data";
 

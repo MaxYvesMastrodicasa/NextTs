@@ -2,21 +2,11 @@
  
 import { signIn, auth } from '@/auth';
 import { AuthError } from 'next-auth';
-import { getSession, SessionContext, signOut } from "next-auth/react";
-import { z } from 'zod';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { signOut } from "next-auth/react";
 import postgres from 'postgres';
  
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
-const FormSchema = z.object({
-  id: z.string(),
-  customerId: z.string({invalid_type_error: 'Please select a customer.',}),
-  amount: z.coerce.number().gt(0, { message: 'Please enter an amount greater than $0.' }),
-  status: z.enum(['pending', 'paid'],{invalid_type_error: 'Please select an invoice status.',}),
-  date: z.string(),
-});
 
   export async function authenticate(
     prevState: string | undefined,

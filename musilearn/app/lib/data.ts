@@ -1,18 +1,23 @@
 'use server';
 import postgres from 'postgres';
-import bcrypt from "bcryptjs";
 import {
   Users
 } from './definitions';
+import { revalidatePath } from "next/cache";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-const ITEMS_PER_PAGE = 10;
+
+// =======================  CONFIGURATION  =======================
+const USER_PER_PAGE = 10;
+const COURSES_PER_PAGE = 6;
+
+// =======================  USER MANAGEMENT  =======================
 
 export async function fetchFilteredUser(
   query: string,
   currentPage: number,
 ) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const offset = (currentPage - 1) * USER_PER_PAGE;
 
   try {
     const filteredUsers = await sql<Users[]>`
@@ -28,7 +33,7 @@ export async function fetchFilteredUser(
         users.email ILIKE ${`%${query}%`} OR
         users.role ILIKE ${`%${query}%`}
       ORDER BY users.createdat DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT ${USER_PER_PAGE} OFFSET ${offset}
     `;
 
     return filteredUsers;
@@ -49,7 +54,7 @@ export async function fetchUsersPages(query: string) {
         role ILIKE ${`%${query}%`}
   `;
 
-    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(Number(data[0].count) / USER_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
@@ -108,4 +113,148 @@ export async function fetchUsersPages(query: string) {
     }
   }
   
+  // =======================  COURSES ALLOCATIONS  =======================
 
+export async function fetchFilteredCourses(query: string = "", page: number = 1) {
+  const offset = (page - 1) * COURSES_PER_PAGE;
+
+  try {
+    const courses = await sql`
+      SELECT
+        courses.id,
+        courses.title,
+        courses.instrument,
+        courses.level,
+        courses.schedule,
+        courses.capacity,
+        users.name AS teacher_name
+      FROM courses
+      LEFT JOIN users ON courses.teacherId = users.id
+      WHERE
+        courses.title ILIKE ${"%" + query + "%"} OR
+        courses.instrument ILIKE ${"%" + query + "%"} OR
+        users.name ILIKE ${"%" + query + "%"}
+      ORDER BY courses.title ASC
+      LIMIT ${COURSES_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return courses;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Échec de la récupération des cours.");
+  }
+}
+
+export async function fetchCoursesPages(query: string = "") {
+  try {
+    const data = await sql`
+      SELECT COUNT(*) AS total FROM courses
+      LEFT JOIN users ON Courses.teacherId = Users.id
+      WHERE
+        courses.title ILIKE ${"%" + query + "%"} OR
+        courses.instrument ILIKE ${"%" + query + "%"} OR
+        users.name ILIKE ${"%" + query + "%"}
+    `;
+
+    const totalPages = Math.ceil(Number(data[0].total) / COURSES_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Échec du calcul du nombre total de pages.");
+  }
+}
+
+export async function fetchTeachers() {
+  try {
+    const teachers = await sql`
+      SELECT id, name FROM users WHERE role = 'teacher' ORDER BY name ASC
+    `;
+    return teachers;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Échec de la récupération des enseignants.");
+  }
+}
+
+export async function createCourse({
+  title,
+  description,
+  instrument,
+  teacherId,
+  level,
+  schedule,
+  capacity,
+}: {
+  title: string;
+  description: string;
+  instrument: string;
+  teacherId: string;
+  level: string;
+  schedule: string;
+  capacity: number;
+}) {
+  try {
+    await sql`
+      INSERT INTO Course (title, description, instrument, teacherId, level, schedule, capacity)
+      VALUES (${title}, ${description}, ${instrument}, ${teacherId}, ${level}, ${schedule}, ${capacity})
+    `;
+    revalidatePath("/(dashboard)/admin/courses_allocation");
+    return { success: true, message: "Cours créé avec succès !" };
+  } catch (error) {
+    console.error("Database Error:", error);
+    return { success: false, message: "Échec de la création du cours." };
+  }
+}
+
+export async function updateCourse(
+  id: string,
+  {
+    title,
+    description,
+    instrument,
+    teacherId,
+    level,
+    schedule,
+    capacity,
+  }: {
+    title: string;
+    description: string;
+    instrument: string;
+    teacherId: string;
+    level: string;
+    schedule: string;
+    capacity: number;
+  }
+) {
+  try {
+    await sql`
+      UPDATE Course SET 
+        title = ${title},
+        description = ${description},
+        instrument = ${instrument},
+        teacherId = ${teacherId},
+        level = ${level},
+        schedule = ${schedule},
+        capacity = ${capacity}
+      WHERE id = ${id}
+    `;
+    revalidatePath("/(dashboard)/admin/courses_allocation");
+    return { success: true, message: "Cours mis à jour avec succès !" };
+  } catch (error) {
+    console.error("Database Error:", error);
+    return { success: false, message: "Échec de la mise à jour du cours." };
+  }
+}
+
+export async function deleteCourse(id: string) {
+  try {
+    await sql`
+      DELETE FROM Course WHERE id = ${id}
+    `;
+    revalidatePath("/(dashboard)/admin/courses_allocation");
+    return { success: true, message: "Cours supprimé avec succès !" };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Échec de la suppression du cours.");
+  }
+}
