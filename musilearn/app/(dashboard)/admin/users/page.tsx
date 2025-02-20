@@ -3,7 +3,6 @@ import Pagination from "@/app/ui/users/pagination";
 import Search from "@/app/ui/search";
 import UsersTable from "@/app/ui/users/table";
 import { fetchUsersPages, fetchFilteredUser } from "@/app/lib/data";
-import { any } from "zod";
 
 export const metadata: Metadata = {
   title: "Users Management",
@@ -12,11 +11,12 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { query?: string; page?: string };
+  searchParams: { query?: string; page?: string } | Promise<{ query?: string; page?: string }>;
 }) {
-  const params = (await searchParams) || {};
-  const query = params.query || "";
-  const currentPage = Number(params.page) || 1;
+  const params = searchParams instanceof Promise ? await searchParams : searchParams;
+
+  const query = params?.query ?? "";
+  const currentPage = parseInt(params?.page ?? "1", 10);
 
   const users = await fetchFilteredUser(query, currentPage);
   const totalPages = await fetchUsersPages(query);
@@ -29,7 +29,7 @@ export default async function Page({
       <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 md:mt-8 mb-3">
         <Search placeholder="Search users..." />
       </div>
-      <div className="overflow-x-auto max-w-full">
+      <div className="overflow-x-auto max-w-full whitespace-nowrap">
         <UsersTable users={users} currentPage={currentPage} />
       </div>
 

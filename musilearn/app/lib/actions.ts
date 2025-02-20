@@ -1,8 +1,8 @@
 'use server';
  
-import { signIn } from '@/auth';
-import { AuthError, User } from 'next-auth';
-import { signOut } from "next-auth/react";
+import { signIn, auth } from '@/auth';
+import { AuthError } from 'next-auth';
+import { getSession, SessionContext, signOut } from "next-auth/react";
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -40,3 +40,24 @@ const FormSchema = z.object({
 export async function signOutAction() {
   await signOut({ redirectTo: "/" });
 }
+
+export async function getUserName() {
+  const session = await auth();
+
+  if (!session?.user?.name) {
+    return null;
+  }
+
+  return session.user.name; 
+}
+
+export async function getUserRole() {
+  const session = await auth();
+
+  if (!session?.user?.role) {
+    return "";
+  }
+
+  return session.user.role; 
+}
+

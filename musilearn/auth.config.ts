@@ -24,6 +24,7 @@ export const authConfig: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.name = user.name;
       }
       return token;
     },
@@ -31,9 +32,10 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.role = (token.role as string);
+        session.user.name = (token.name as string);
       }
-      console.log("Session: ", session);
-      console.log("Token: ", token);
+      // console.log("Session: ", session);
+      // console.log("Token: ", token);
       return session;
     },
   },

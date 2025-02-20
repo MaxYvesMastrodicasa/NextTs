@@ -57,20 +57,28 @@ export async function fetchUsersPages(query: string) {
   }
   }
 
-  export async function createUser(name: string, email: string, role: string) {
-    //console.log("T'es la ou t'es pas la ? :", { name, email, role });
-  
-    const hashedPassword = await bcrypt.hash("defaultpassword123", 10); // Mot de passe temporaire
-  
+  export async function createUser({
+    name,
+    email,
+    password,
+    role,
+    createdAt,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    createdAt: string;
+  }) {
     try {
       await sql`
-        INSERT INTO users (name, email, role, password, createdat)
-        VALUES (${name}, ${email}, ${role}, ${hashedPassword}, NOW())
+        INSERT INTO users (name, email, password, role, createdat)
+        VALUES (${name}, ${email}, ${password}, ${role}, ${createdAt})
       `;
   
       return { success: true, message: "User created successfully!" };
     } catch (error) {
-      console.error("DB Error : ", error);
+      console.error("Database Error:", error);
       return { success: false, message: "Failed to create user." };
     }
   }

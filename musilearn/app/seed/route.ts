@@ -119,7 +119,7 @@ export async function GET() {
 }
 
 async function updatefdp() {
-  const pswd = "professor";
+  const pswd = "teacher";
   const pswdhash = await bcrypt.hash(pswd, 10);
   await sql`
     UPDATE users SET password = ${pswdhash} where id = '410544b2-4001-4271-9855-fec4b6a6442b'

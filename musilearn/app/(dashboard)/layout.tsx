@@ -1,16 +1,9 @@
-"use client";
-
 import SideNav from "@/app/ui/dashboard/sidenav";
-import { useSession } from "next-auth/react";
+import { getUserRole } from "../lib/actions";
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+async function LayoutContent({ children }: { children: React.ReactNode }) {
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  const role = session?.user?.role as string;
+  const role = await getUserRole();
 
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">

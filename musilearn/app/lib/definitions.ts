@@ -7,7 +7,7 @@ export type Users = {
   name: string;
   email: string;
   password: string;
-  role: "student"|"professor"|"admin";
+  role: "student"|"teacher"|"admin";
   createdat: Date;
 };
 
